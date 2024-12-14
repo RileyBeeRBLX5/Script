@@ -166,6 +166,8 @@
             document.getElementById('timezone').textContent = `Timezone: ${selectedTimezone}`;
             document.getElementById('dayNightSymbol').textContent = dayNightSymbol;
             document.getElementById('dayNightDescription').textContent = dayNightDescription;
+
+            requestAnimationFrame(updateTime);
         }
 
         document.getElementById('toggleSeconds').addEventListener('click', () => {
@@ -177,7 +179,6 @@
         countryDropdown.addEventListener('change', updateTime);
 
         populateDropdown();
-        setInterval(updateTime, 1000);
         updateTime();
     </script>
 </body>
