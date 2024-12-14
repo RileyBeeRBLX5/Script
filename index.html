@@ -80,6 +80,12 @@
             max-width: 500px;
         }
 
+        .date-bar {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
         @media (max-width: 768px) {
             .time {
                 font-size: 1.5rem;
@@ -98,6 +104,7 @@
 </head>
 <body>
     <h1>Local Time / Current Time (TimeStream)</h1>
+    <div class="date-bar" id="date-bar">January 1, 2024 / Monday (Date)</div>
     <select id="countryDropdown"></select>
     <button class="toggle-button" id="toggleSeconds">Turn Off Seconds</button>
     <div class="container">
@@ -115,6 +122,7 @@
     <script>
         let showSeconds = true;
         const countryDropdown = document.getElementById('countryDropdown');
+        const dateBar = document.getElementById('date-bar');
 
         const timezones = Intl.supportedValuesOf('timeZone');
 
@@ -148,6 +156,10 @@
             const dayNightSymbol = isDay ? '☀️' : '🌑';
             const dayNightDescription = isDay ? 'Daylight' : 'NightTime';
 
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateString = localTime.toLocaleDateString(locale, dateOptions);
+            dateBar.textContent = dateString;
+
             document.getElementById('twelveHour').textContent = twelveHourFormat;
             document.getElementById('twentyFourHour').textContent = twentyFourHourFormat;
             document.getElementById('country').textContent = `Country: ${selectedCountry}`;
@@ -166,7 +178,7 @@
 
         populateDropdown();
         setInterval(updateTime, 1000);
-        updateTime(); // Initial call to display time immediately
+        updateTime();
     </script>
 </body>
 </html>
