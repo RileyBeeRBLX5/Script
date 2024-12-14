@@ -70,6 +70,16 @@
             background-color: #0056b3;
         }
 
+        select {
+            margin-bottom: 15px;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 90%;
+            max-width: 500px;
+        }
+
         @media (max-width: 768px) {
             .time {
                 font-size: 1.5rem;
@@ -87,7 +97,8 @@
     </style>
 </head>
 <body>
-    <h1>Local Time / Time</h1>
+    <h1>Local Time / Current Time (TimeStream)</h1>
+    <select id="countryDropdown"></select>
     <button class="toggle-button" id="toggleSeconds">Turn Off Seconds</button>
     <div class="container">
         <div class="time-display">
@@ -95,32 +106,52 @@
             <div class="separator">|</div>
             <div class="time" id="twentyFourHour">00:00:00</div>
         </div>
-        <div class="details" id="country">Country / Region: No country or region set</div>
+        <div class="details" id="country">Country: No country set</div>
+        <div class="details" id="timezone">Timezone: No timezone set</div>
         <div class="emoji" id="dayNightSymbol">☀️</div>
         <div class="description" id="dayNightDescription">Daylight</div>
     </div>
 
     <script>
         let showSeconds = true;
+        const countryDropdown = document.getElementById('countryDropdown');
+
+        const timezones = Intl.supportedValuesOf('timeZone');
+
+        function populateDropdown() {
+            timezones.forEach(timezone => {
+                const option = document.createElement('option');
+                const country = timezone.split('/').slice(-1)[0].replace(/_/g, ' ');
+                option.value = timezone;
+                option.textContent = country;
+                countryDropdown.appendChild(option);
+            });
+
+            const defaultTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            countryDropdown.value = defaultTimezone;
+        }
 
         function updateTime() {
             const now = new Date();
             const locale = navigator.language;
+            const selectedTimezone = countryDropdown.value;
 
-            const twelveHourFormat = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: showSeconds ? '2-digit' : undefined, hour12: true });
-            const twentyFourHourFormat = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: showSeconds ? '2-digit' : undefined, hour12: false });
+            const localTime = new Date(now.toLocaleString('en-US', { timeZone: selectedTimezone }));
 
-            const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            const regionName = timeZone.split('/')[1].replace(/_/g, ' ');
+            const twelveHourFormat = localTime.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: showSeconds ? '2-digit' : undefined, hour12: true });
+            const twentyFourHourFormat = localTime.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: showSeconds ? '2-digit' : undefined, hour12: false });
 
-            const hours = now.getHours();
+            const selectedCountry = selectedTimezone.split('/').slice(-1)[0].replace(/_/g, ' ');
+
+            const hours = localTime.getHours();
             const isDay = hours >= 6 && hours < 18;
             const dayNightSymbol = isDay ? '☀️' : '🌑';
-            const dayNightDescription = isDay ? 'Daylight' : 'Nighttime';
+            const dayNightDescription = isDay ? 'Daylight' : 'NightTime';
 
             document.getElementById('twelveHour').textContent = twelveHourFormat;
             document.getElementById('twentyFourHour').textContent = twentyFourHourFormat;
-            document.getElementById('country').textContent = `Country: ${regionName}`;
+            document.getElementById('country').textContent = `Country: ${selectedCountry}`;
+            document.getElementById('timezone').textContent = `Timezone: ${selectedTimezone}`;
             document.getElementById('dayNightSymbol').textContent = dayNightSymbol;
             document.getElementById('dayNightDescription').textContent = dayNightDescription;
         }
@@ -131,8 +162,11 @@
             toggleButton.textContent = showSeconds ? 'Turn Off Seconds' : 'Turn On Seconds';
         });
 
+        countryDropdown.addEventListener('change', updateTime);
+
+        populateDropdown();
         setInterval(updateTime, 1000);
-        updateTime();
+        updateTime(); // Initial call to display time immediately
     </script>
 </body>
 </html>
