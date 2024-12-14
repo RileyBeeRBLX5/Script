@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimeStream</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 50px;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 90%;
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 10px;
+            border: 2px solid #000;
+            border-radius: 8px;
+        }
+
+        .time {
+            font-size: 1.8rem;
+        }
+
+        .separator {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .details {
+            font-size: 1rem;
+        }
+
+        .emoji {
+            font-size: 2.5rem;
+        }
+
+        .description {
+            color: grey;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .toggle-button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .toggle-button:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width: 768px) {
+            .time {
+                font-size: 1.5rem;
+            }
+
+            .emoji {
+                font-size: 2rem;
+            }
+
+            .toggle-button {
+                font-size: 0.9rem;
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Local Time / Time</h1>
+    <button class="toggle-button" id="toggleSeconds">Turn Off Seconds</button>
+    <div class="container">
+        <div class="time-display">
+            <div class="time" id="twelveHour">12:00:00 AM</div>
+            <div class="separator">|</div>
+            <div class="time" id="twentyFourHour">00:00:00</div>
+        </div>
+        <div class="details" id="country">Country / Region: No country or region set</div>
+        <div class="emoji" id="dayNightSymbol">☀️</div>
+        <div class="description" id="dayNightDescription">Daylight</div>
+    </div>
+
+    <script>
+        let showSeconds = true;
+
+        function updateTime() {
+            const now = new Date();
+            const locale = navigator.language;
+
+            const twelveHourFormat = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: showSeconds ? '2-digit' : undefined, hour12: true });
+            const twentyFourHourFormat = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: showSeconds ? '2-digit' : undefined, hour12: false });
+
+            const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const regionName = timeZone.split('/')[1].replace(/_/g, ' ');
+
+            const hours = now.getHours();
+            const isDay = hours >= 6 && hours < 18;
+            const dayNightSymbol = isDay ? '☀️' : '🌑';
+            const dayNightDescription = isDay ? 'Daylight' : 'Nighttime';
+
+            document.getElementById('twelveHour').textContent = twelveHourFormat;
+            document.getElementById('twentyFourHour').textContent = twentyFourHourFormat;
+            document.getElementById('country').textContent = `Country: ${regionName}`;
+            document.getElementById('dayNightSymbol').textContent = dayNightSymbol;
+            document.getElementById('dayNightDescription').textContent = dayNightDescription;
+        }
+
+        document.getElementById('toggleSeconds').addEventListener('click', () => {
+            showSeconds = !showSeconds;
+            const toggleButton = document.getElementById('toggleSeconds');
+            toggleButton.textContent = showSeconds ? 'Turn Off Seconds' : 'Turn On Seconds';
+        });
+
+        setInterval(updateTime, 1000);
+        updateTime();
+    </script>
+</body>
+</html>
